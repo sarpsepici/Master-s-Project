@@ -8,7 +8,7 @@ from Settings import *
 import matplotlib.pyplot as plt
 import binascii
 from collections import deque
-import settings
+import Settings
 import pyvisa as visa
 import pymmcore
 import tqdm

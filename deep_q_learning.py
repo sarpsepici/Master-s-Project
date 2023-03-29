@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -94,7 +95,6 @@ def select_action(state, eps_threshold):
         action = torch.tensor([[random.randrange(4)]], device=device, dtype=torch.long)
     return action
 
-# define training loop
 
 def train_dqn(num_episodes, env, dqn, target_dqn, optimizer, loss_fn, memory):
 
@@ -119,6 +119,7 @@ def train_dqn(num_episodes, env, dqn, target_dqn, optimizer, loss_fn, memory):
         state = next_state
 
         if len(memory) >= BATCH_SIZE:
+
             state_batch, action_batch, reward_batch, next_state_batch, done_batch = memory.sample(BATCH_SIZE)
             q_values = dqn(state_batch).gather(1, action_batch)
 
@@ -149,8 +150,5 @@ episode_rewards = train_dqn(1000, env, dqn, target_dqn, optimizer, loss_fn, memo
 
 fig, ax = plt.subplots()
 ax.plot(episode_rewards)
-ax.set_xlabel('Episode')
-ax.set_ylabel('Total reward')
-ax.set_title('Training Progress')
 
 torch.save(dqn.state_dict(), 'dqn_cartpole.pth')

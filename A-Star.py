@@ -162,13 +162,6 @@ class Astar():
 
         return []
 
-# def generate_bitmap(size, num_obstacles):
-#     bitmap = np.ones((size, size))
-#     for i in range(num_obstacles):
-#         x = random.randint(0, size-1)
-#         y = random.randint(0, size-1)
-#         bitmap[y, x] = 0
-#     return bitmap
 
 def generate_bitmap(size, num_circles):
     bitmap = np.ones((size, size))
