@@ -1,7 +1,7 @@
 import cv2
 from operator import itemgetter
 import numpy as np
-from Settings import *
+from settings import *
 import matplotlib.pyplot as plt
 import math
 import glob

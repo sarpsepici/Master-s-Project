@@ -4,11 +4,11 @@ import cv2
 import datetime
 import time
 import serial
-from Settings import *
+from settings import *
 import matplotlib.pyplot as plt
 import binascii
 from collections import deque
-import Settings
+import settings
 import pyvisa as visa
 import pymmcore
 import tqdm

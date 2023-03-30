@@ -1,7 +1,7 @@
 import cv2
 from operator import itemgetter
 import numpy as np
-from Settings import *
+from settings import *
 import matplotlib.pyplot as plt
 import math
 import glob
@@ -350,7 +350,7 @@ size_buf = []
 
 # path="C:/Users/ARSL/Desktop/Temp/*"
 # cap = cv2.VideoCapture("C:/Users/ARSL/Desktop/Temp/Video1.AVI")
-cap = cv2.VideoCapture("C:/Users/sarpsepici/Documents/IMG_4291.MOV")
+cap = cv2.VideoCapture("C:/Users/sarpsepici/Desktop/Temp/Video1.AVI")
 
 ret, img = cap.read()
 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

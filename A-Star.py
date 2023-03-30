@@ -49,7 +49,6 @@ def check_collision(bitmap, p1, p2, safety_distance):
             if any([bitmap[x+safety_distance][int(y+safety_distance)]==0, bitmap[x-safety_distance][int(y-safety_distance)]==0]):
                 return True
     return False
-"""
 
 def check_collision(bitmap, p1, p2, safety_distance):
     x1, y1 = p1
@@ -76,6 +75,77 @@ def check_collision(bitmap, p1, p2, safety_distance):
             break
     return False
 
+def check_collision(bitmap, p1, p2, safety_distance=10):
+    x1, y1 = p1
+    x2, y2 = p2
+    dx, dy = x2 - x1, y2 - y1
+    length = np.sqrt(dx ** 2 + dy ** 2)
+    dx, dy = dx / length, dy / length  # unit vector in direction of line
+    px, py = x1, y1  # current position on line
+    while True:
+        # check for collision with current position and safety distance
+        for dist in range(safety_distance*10, 0, -1):
+            if bitmap[int(px + dist/10 * dx)][int(py + dist/10 * dy)] == 0:
+                return False
+        # move to next position on line
+        px += dx
+        py += dy
+        if (x2 - px) * dx <= 0 and (y2 - py) * dy <= 0:  # reached end of line
+            break
+    return True
+
+def check_collision(bitmap, p1, p2, safety_dist=10):
+    radius = 10
+    x1, y1 = p1
+    x2, y2 = p2
+    dx, dy = x2 - x1, y2 - y1
+    length = np.sqrt(dx ** 2 + dy ** 2)
+    if length == 0:  # zero length line
+        return False
+    dx, dy = dx / length, dy / length  # unit vector in direction of line
+    for dist in range(safety_dist*10 + radius, int(length*10) - radius, radius):
+        # check for collision with obstacles around the line
+        for angle in range(0, 360, 5):
+            x = int(x1 + (dist/10) * np.cos(np.deg2rad(angle)))
+            y = int(y1 + (dist/10) * np.sin(np.deg2rad(angle)))
+            if x >= 0 and x < bitmap.shape[1] and y >= 0 and y < bitmap.shape[0]:
+                if bitmap[y, x] == 0:
+                    return False
+    return True
+"""
+
+def check_collision(bitmap, start_pixel, end_pixel, safety_dist):
+    # Bresenham's line algorithm to generate the line
+    x0, y0 = start_pixel
+    x1, y1 = end_pixel
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+    sx = 1 if x0 < x1 else -1
+    sy = 1 if y0 < y1 else -1
+    err = dx - dy
+    line_pixels = []
+    while True:
+        line_pixels.append((x0, y0))
+        if x0 == x1 and y0 == y1:
+            break
+        e2 = 2 * err
+        if e2 > -dy:
+            err -= dy
+            x0 += sx
+        if e2 < dx:
+            err += dx
+            y0 += sy
+
+    # Check collision for each pixel on the line
+    for pixel in line_pixels:
+        x, y = pixel
+        for i in range(max(0, x - safety_dist), min(300, x + safety_dist + 1)):
+            for j in range(max(0, y - safety_dist), min(300, y + safety_dist + 1)):
+                if bitmap[i][j] == 0 and np.sqrt((x-i)**2 + (y-j)**2) <= safety_dist:
+                    return False
+    return True
+
+"""
 def generate_lines(bitmap, max_distance, start, goal):
 
     # 300 random points in bitmap.
@@ -102,6 +172,44 @@ def generate_lines(bitmap, max_distance, start, goal):
                     lines_dict[tuple(p1)].append(tuple(p2))
                     lines_dict[tuple(p2)].append(tuple(p1))
                     lines_dict[tuple(p2)].append(tuple(p2))
+
+    return lines_dict
+"""
+
+def generate_lines(bitmap, max_distance, start, goal):
+
+    # 300 random points in bitmap.
+    points = [start, goal]
+    while len(points) < 5000:
+        x = random.randint(50, bitmap.shape[1]-51)
+        y = random.randint(50, bitmap.shape[0]-51)
+        if bitmap[y, x] == 1:
+            points.append((x, y))
+
+    lines_dict = {point: [] for point in points}
+
+    for i in range(len(points)):
+
+        # find 10 closest points to form a line with without collision
+
+        distances = [(np.sqrt((points[i][0]-p[0])**2 + (points[i][1]-p[1])**2), p) for p in points if p != points[i]]
+        distances.sort()
+        closest_points = [p[1] for p in distances[:10]]
+
+        for j in range(len(closest_points)):
+            p1, p2 = points[i], closest_points[j]
+
+            if np.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2) <= max_distance:
+
+                if not check_collision(bitmap, p1, p2, 30):
+                    continue
+                else:
+                    if len(lines_dict[tuple(p1)]) < 20:
+                        lines_dict[tuple(p1)].append(tuple(p1))
+                        lines_dict[tuple(p1)].append(tuple(p2))
+                    if len(lines_dict[tuple(p2)]) < 20:
+                        lines_dict[tuple(p2)].append(tuple(p1))
+                        lines_dict[tuple(p2)].append(tuple(p2))
 
     return lines_dict
 
@@ -181,7 +289,7 @@ goal = tuple([200,200])
 bitmap = np.ones((300,300))
 bitmap = generate_bitmap(300, 1)
 
-lines_dict_test = generate_lines(bitmap, 30, start, goal)
+lines_dict_test = generate_lines(bitmap, 100, start, goal)
 astar_test = Astar()
 
 path_test = astar_test.path(start, goal, lines_dict=lines_dict_test)
